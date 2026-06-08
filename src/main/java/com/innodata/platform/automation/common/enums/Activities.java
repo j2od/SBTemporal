@@ -20,7 +20,7 @@ public enum Activities {
 
     public static boolean isAllowed(String candidate) {
         for (Activities activity : values()) {
-            if (activity.name.equals(candidate)) {
+            if (activity.name.equalsIgnoreCase(candidate)) {
                 return true;
             }
         }
@@ -29,7 +29,7 @@ public enum Activities {
 
     public static Optional<Activities> fromName(String candidate) {
         return Arrays.stream(values())
-                .filter(a -> a.name.equals(candidate))
+                .filter(a -> a.name.equalsIgnoreCase(candidate))
                 .findFirst();
     }
 }

@@ -1,13 +1,9 @@
 package com.innodata.platform.automation.orchestrator.dsl;
 
-import java.util.List;
-import java.util.Map;
+import com.innodata.platform.automation.api.dto.WorkflowNode;
 
 public record WorkflowStep(
         String id,
-        String activity,
-        Map<String, Object> input,
-        List<String> dependsOn,
-        int startToCloseSeconds,
-        int maximumAttempts
+        String type,
+        WorkflowNode workflowNode
 ) {}

@@ -9,6 +9,7 @@ import com.innodata.platform.automation.service.WorkflowDefinitionCompiler;
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +26,7 @@ public class WorkflowController {
 
     @PostMapping("/start")
     public ResponseEntity<String> startWorkflow(@RequestBody StartWorkflowRequest request) {
-
         WorkflowDefinition definition = compilerService.compile(request, request.workflowId(), request.name());
-
         WorkflowOrchestrator workflow = workflowClient.newWorkflowStub(WorkflowOrchestrator.class,
                 WorkflowOptions.newBuilder()
                         .setTaskQueue(TemporalConstants.WORKFLOW_ORCHESTRATION_QUEUE)
@@ -37,5 +36,19 @@ public class WorkflowController {
         WorkflowExecutionRequest executionRequest = new WorkflowExecutionRequest(request.payload());
         WorkflowExecution execution = WorkflowClient.start(workflow::execute, definition, executionRequest);
         return ResponseEntity.ok("START!! " + execution.getWorkflowId());
+    }
+
+    @PostMapping("/{workflowId}/approve/{nodeId}")
+    public String approveNode(@PathVariable String workflowId, @PathVariable String nodeId) {
+        WorkflowStub stub = workflowClient.newUntypedWorkflowStub(workflowId);
+        stub.signal("approve", nodeId);
+        return "Approval signal sent for node: " + nodeId;
+    }
+
+    @PostMapping("/{workflowId}/reject/{nodeId}")
+    public String rejectNode(@PathVariable String workflowId, @PathVariable String nodeId) {
+        WorkflowStub stub = workflowClient.newUntypedWorkflowStub(workflowId);
+        stub.signal("reject", nodeId);
+        return "Reject signal sent for node: " + nodeId;
     }
 }
